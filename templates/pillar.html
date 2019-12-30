@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+{% block app_content %}
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark justify-content-between rounded-top">
+  <a class="navbar-brand" href="#">Nebulas</a>
+</nav>
+
+<div id="alert" class="alert alert-danger" role="alert" style="display:none">
+</div>
+
+<div>
+    <div class="card rounded-0">
+        <div class="card-header">
+            Create Network
+        </div>
+        <div class="card-body">
+        <form name="nebula_create_form" id="nebula_create_form">
+            <div class="form-group row">
+              <label for="inputEmail3" class="col-sm-2 col-form-label">Name</label>
+              <div class="col-sm-10">
+                <input type="text" pattern="[a-zA-Z0-9]{1,}" name="nebula_name" id="nebula_name" class="form-control" placeholder="Nebula" required>
+                <small class="form-text text-muted">
+                    Should only contain letters and numbers, with a length greater than 0.
+                  </small>
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <div class="col-sm-10">
+                <button type="submit" id="nebula_create_button" class="btn btn-primary">Create</button>    
+                </div>
+            </div>
+          </form>
+    </div>
+</div>
+
+<script type="text/javascript" charset="utf-8">
+
+$('#nebula_create_form').submit(function () {
+ nebula_create();
+ return false;
+});
+
+function nebula_create() {
+    var nebula_name = document.forms["nebula_create_form"]["nebula_name"].value;
+    if (nebula_name == "") {
+    alert("Name must be filled out");
+    return false;
+    }
+    //var nebula_id = document.getElementById('nebula_name').value
+    console.log("Requested: " + nebula_name);
+    socket.emit('nebula_create', {"name": nebula_name})
+};
+
+// SOCKET
+var socket = io.connect('http://' + document.domain + ':' + location.port);
+console.log('http://' + document.domain + ':' + location.port);
+
+socket.on('return', function(data) {
+    str_msg = JSON.stringify(data, null, 4);
+    console.log(str_msg);
+    // window.open("static/%s.zip", '_blank');
+
+});
+// END
+
+</script>
+
+
+
+{% endblock %}
