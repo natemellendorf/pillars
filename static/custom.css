@@ -13,4 +13,41 @@ a:focus {
 a:active {
     color: #868e96;
 }
-body { background: #f8f9fa !important;}
+body { 
+    background-image: url('beach.jpg');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+}
+.special-card {
+    opacity: .95;
+}
+input[type=text] {
+    background-color: rgb(44, 44, 44);
+    color: white;
+}
+  input[type=text]:focus {
+    background-color: rgb(44, 44, 44);
+    color: white;
+}
+input[type=checkbox] {
+    background-color: rgb(44, 44, 44);
+    color: rgb(44, 44, 44);
+}
+  input[type=checkbox]:focus {
+    background-color: rgb(44, 44, 44);
+    color: rgb(44, 44, 44);
+}
+
+.special-select {
+    background: rgb(44, 44, 44);
+    color: white;
+  }
+.special-select:focus {
+    background: rgb(44, 44, 44);
+    color: white;
+}
+.special-select option {
+    background-color: rgb(44, 44, 44);
+    color: white;
+  }
