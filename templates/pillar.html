@@ -2,33 +2,96 @@
 {% import 'bootstrap/wtf.html' as wtf %}
 {% block app_content %}
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark justify-content-between rounded-top">
-  <a class="navbar-brand" href="#">Nebulas</a>
-</nav>
-
 <div id="alert" class="alert alert-danger" role="alert" style="display:none">
 </div>
 
 <div>
-    <div class="card rounded-0">
+    <div class="card rounded-0 card text-white bg-dark special-card">
         <div class="card-header">
-            Create Network
+            Create Nebula
         </div>
         <div class="card-body">
         <form name="nebula_create_form" id="nebula_create_form">
             <div class="form-group row">
-              <label for="inputEmail3" class="col-sm-2 col-form-label">Name</label>
+              <label for="nebula_name" class="col-sm-2 col-form-label">Name</label>
               <div class="col-sm-10">
                 <input type="text" pattern="[a-zA-Z0-9]{1,}" name="nebula_name" id="nebula_name" class="form-control" placeholder="Nebula" required>
                 <small class="form-text text-muted">
-                    Should only contain letters and numbers, with a length greater than 0.
+                    Should only contain letters and numbers
                   </small>
               </div>
             </div>
 
             <div class="form-group row">
               <div class="col-sm-10">
-                <button type="submit" id="nebula_create_button" class="btn btn-primary">Create</button>    
+                <button type="submit" id="nebula_create_button" class="btn btn-secondary">Create</button>    
+                </div>
+            </div>
+          </form>
+    </div>
+</div>
+
+<br>
+
+<div>
+    <div class="card rounded-0 card text-white bg-dark special-card">
+        <div class="card-header">
+            Join Nebula
+        </div>
+        <div class="card-body">
+        <form name="nebula_create_form" id="nebula_join_form">
+            <div class="form-group">
+                <select class="form-control special-select" id="nebula_list" required>
+                  {% for nebula in nebulas %}
+                  <option>{{nebula}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="form-group row">
+                <label for="device_name" class="col-sm-2 col-form-label">Device</label>
+                <div class="col-sm-10">
+                  <input type="text" pattern="[a-zA-Z0-9]{1,}" name="device_name" id="device_name" class="form-control" placeholder="Laptop" required>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="device_ip" class="col-sm-2 col-form-label">IP</label>
+                <div class="col-sm-10">
+                  <input type="text" pattern="[a-zA-Z0-9]{1,}" name="device_name" id="device_ip" class="form-control" placeholder="192.168.100.10/24" required>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="device_group" class="col-sm-2 col-form-label">Group</label>
+                <div class="col-sm-10">
+                  <input type="text" pattern="[a-zA-Z0-9]{1,}" name="device_name" id="device_group" class="form-control" placeholder="laptops">
+                </div>
+              </div>
+
+              <fieldset class="form-group">
+                <div class="row">
+                  <legend class="col-form-label col-sm-2 pt-0">Lighthouse</legend>
+                  <div class="col-sm-10">
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios1" value="option1" checked>
+                      <label class="form-check-label" for="gridRadios1">
+                        No
+                      </label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios2" value="option2">
+                      <label class="form-check-label" for="gridRadios2">
+                        Yes
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+
+            <div class="form-group row">
+              <div class="col-sm-10">
+                <button type="submit" id="nebula_join_button" class="btn btn-secondary">Join</button>    
                 </div>
             </div>
           </form>

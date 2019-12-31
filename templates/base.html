@@ -20,10 +20,10 @@
 {% endblock body_attribs %}
 
 {% block content %}
-<div class="container bg-light text-dark border border-light rounded">
+<div class="container text-dark rounded">
 
     {% include 'navbar.html' %}
-    filler
+    <br>
     <!-- <img src="/static/beach.jpg" class="img-fluid mb-3 rounded-bottom" alt="ConfigPy"> -->
     {% with messages = get_flashed_messages() %}
     {% if messages %}

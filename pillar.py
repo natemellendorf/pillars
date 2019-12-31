@@ -55,7 +55,7 @@ def current_time():
 
 @app.route('/pillar', methods=['GET', 'POST'])
 def pillar():
-    return render_template('pillar.html', title='Pillar')
+    return render_template('pillar.html', title='Pillar', nebulas=['Omega'])
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
@@ -77,6 +77,33 @@ def socket_event(data):
     #stream = os.popen(f'./nebula/nebula-cert ca -name "{data["name"]}"')
     name = str(data["name"])
     command = f'.\cert.exe ca -name "{name}" -out-crt "certs\{name}.crt" -out-key "certs\{name}.key"'
+    output = subprocess.run(command)
+
+    if output.returncode == 1:
+        data['error'] = 'ERROR'
+        socketio.emit('return', data)
+        return
+
+    with open(f'certs\{name}.crt') as crt_f:
+         data["crt"] = crt_f.read()
+
+    with open(f'certs\{name}.key') as key_f:
+         data["key"] = key_f.read()
+    '''
+    with ZipFile(f'{name}.zip', 'w') as myzip:
+        myzip.write(f'{name}.crt')
+        myzip.write(f'{name}.key')
+    '''
+    socketio.emit('return', data)
+
+@socketio.on('node_create')
+def node_create(data):
+    # print(f'Flask received: {data}')
+    #stream = os.popen(f'./nebula/nebula-cert ca -name "{data["name"]}"')
+    ca_name = str(data["ca_name"])
+    name = str(data["name"])
+    ip = str(data["ip"])
+    command = f'.\cert.exe sign -name "{name}" -ip "{ip}" -ca-crt "certs\{ca_name}.crt" -ca-key "certs\{ca_name}.key" -out-crt "certs\{name}.crt" -out-key "certs\{name}.key"'
     output = subprocess.run(command)
 
     if output.returncode == 1:
