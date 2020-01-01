@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+{% block app_content %}
+
+<div>
+    <div class="card rounded-0 card text-white bg-dark special-card">
+        <div class="card-header">
+            Create Nebula
+        </div>
+        <div class="card-body">
+
+        <form name="nebula_create_form" id="nebula_create_form">
+            <div class="form-group row">
+              <label for="nebula_name" class="col-sm-2 col-form-label">Name</label>
+              <div class="col-sm-10">
+                <input type="text" pattern="[a-zA-Z0-9]{1,}" name="nebula_name" id="nebula_name" class="form-control" placeholder="Nebula" required>
+                <small class="form-text text-muted">
+                    Should only contain letters and numbers
+                  </small>
+              </div>
+            </div>
+
+            <p>
+              <button type="submit" id="nebula_create_button" class="btn btn-secondary float-right">Create</button>    
+            </p>
+
+        </form>
+
+    </div>
+</div>
+
+<br>
+
+<div id="alert_div" class="alert alert-light alert-dismissible fade show" role="alert" style="display:none">
+  <text id="alert_msg"></text>
+  <button type="button" class="close" onclick="hide()" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+<div>
+    <div class="card rounded-0 card text-white bg-dark special-card">
+        <div class="card-header">
+            Join Nebula
+        </div>
+        <div class="card-body">
+
+        <form name="nebula_join_form" id="nebula_join_form">
+            <div class="form-group">
+                <select class="form-control special-select" id="nebula_list" required>
+                  {% for nebula in nebulas %}
+                  <option>{{nebula}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="form-group row">
+                <label for="device_name" class="col-sm-2 col-form-label">Device</label>
+                <div class="col-sm-10">
+                  <input type="text" pattern="[a-zA-Z0-9]{1,}" name="device_name" id="device_name" class="form-control" placeholder="Macbook" required>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="device_ip" class="col-sm-2 col-form-label">IP</label>
+                <div class="col-sm-10">
+                  <input type="text" pattern="^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(3[0-2]|[1-2][0-9]|[0-9]))$" name="device_ip" id="device_ip" class="form-control" placeholder="192.168.100.10/24" required>
+                </div>
+              </div>
+
+              <p>
+                <button class="btn btn-outline-light" type="button" data-toggle="collapse" data-target="#join_settings" aria-expanded="false" aria-controls="join_settings">
+                  Options
+                </button>
+                <button type="submit" id="nebula_join_button" class="btn btn-secondary float-right">Join</button>
+              </p>
+
+              <div class="collapse" id="join_settings">
+                <div class="card card-body rounded-0 card text-white bg-dark special-card">
+
+                  <h5>Lighthouse</h5>
+                  <div class="form-group row ">
+                    <label for="lh_location" class="col-sm-2 col-form-label">Location</label>
+                    <div class="col-sm-10">
+                      <input type="text" pattern="[a-zA-Z0-9.]{1,}" name="lh_location" id="lh_location" class="form-control" placeholder="lighthouse.example.com">
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="lh_port" class="col-sm-2 col-form-label">Port</label>
+                    <div class="col-sm-10">
+                      <input type="text" pattern="[0-9]{1,}" name="lh_port" id="lh_port" class="form-control" placeholder="4242">
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="lh_ip" class="col-sm-2 col-form-label">IP</label>
+                    <div class="col-sm-10">
+                      <input type="text" pattern="^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$" name="lh_ip" id="lh_ip" class="form-control" placeholder="192.168.100.1">
+                    </div>
+                  </div>
+
+                  <hr>
+
+                  <h5>Security</h5>
+                  <div class="form-group row">
+                    <label for="device_group" class="col-sm-2 col-form-label">Groups</label>
+                    <div class="col-sm-10">
+                      <input type="text" pattern="[a-zA-Z0-9, ]{1,}" name="device_group" id="device_group" class="form-control" placeholder="laptops">
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+          
+          </form>
+    </div>
+</div>
+
+<script type="text/javascript" charset="utf-8">
+
+$('#nebula_create_form').submit(function () {
+ nebula_create();
+ return false;
+});
+
+$('#nebula_join_form').submit(function () {
+ nebula_join();
+ return false;
+});
+
+function hide(){
+  $('#alert_div').hide();
+}
+
+function nebula_create() {
+    var name = document.forms["nebula_create_form"]["nebula_name"].value;
+
+    var create_data = {
+      name: name
+    };
+    
+    if (nebula_name == "") {
+    alert("Name must be filled out");
+    return false;
+    }
+    //var nebula_id = document.getElementById('nebula_name').value
+    console.log("Requested: " + create_data);
+    socket.emit('nebula_create', {"data": create_data})
+};
+
+function nebula_join() {
+    var nebula = document.forms["nebula_join_form"]["nebula_list"].value;
+    var device_name = document.forms["nebula_join_form"]["device_name"].value;
+    var device_ip = document.forms["nebula_join_form"]["device_ip"].value;
+    var device_group = document.forms["nebula_join_form"]["device_group"].value;
+    var lh_location = document.forms["nebula_join_form"]["lh_location"].value;
+    var lh_port = document.forms["nebula_join_form"]["lh_port"].value;
+    var lh_ip = document.forms["nebula_join_form"]["lh_ip"].value;
+
+    var join_data = {
+        nebula: nebula,
+        device_name: device_name,
+        device_ip: device_ip,
+        device_group: device_group,
+        lh_location: lh_location,
+        lh_port: lh_port,
+        lh_ip: lh_ip
+    };
+
+    if (nebula_name == "") {
+    alert("Name must be filled out");
+    return false;
+    }
+
+    //var nebula_id = document.getElementById('nebula_name').value
+    console.log("Requested: " + join_data);
+    socket.emit('nebula_join', {"data": join_data})
+
+};
+
+// SOCKET
+var socket = io.connect('http://' + document.domain + ':' + location.port);
+console.log('http://' + document.domain + ':' + location.port);
+
+socket.on('return', function(data) {
+    str_msg = JSON.stringify(data, null, 4);
+    console.log(str_msg);
+    if (data['error']) {
+        $('#alert_div').show();
+        document.getElementById("alert_msg").innerHTML = data['error'];
+        
+        //alert(data['error']);
+    }
+    // window.open("static/%s.zip", '_blank');
+
+});
+// END
+
+</script>
+
+
+
+{% endblock %}
