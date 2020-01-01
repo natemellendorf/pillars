@@ -126,10 +126,12 @@ def nebula_join(data):
 
     # Read the certificates created
     with open(f'certs\{device_name}.crt') as crt_f:
-         data["crt"] = crt_f.read()
+         #data["crt"] = crt_f.read()
+         pass
 
     with open(f'certs\{device_name}.key') as key_f:
-         data["key"] = key_f.read()
+         #data["key"] = key_f.read()
+         pass
 
     # Create config file for endpoint
     config = 'config.yml'
@@ -164,19 +166,18 @@ def nebula_join(data):
     else:
         d['static_host_map'] = 'None'
     
-    #pprint(d)
-
     # Save the new endpoint config file
     with open(f'configs\{nebula}_{device_name}.yml', 'w') as outfile:
         yaml.dump(d, outfile, default_style='' , default_flow_style=False)
     
 
-    with ZipFile(f'zips\{nebula}_{device_name}.zip', 'w') as myzip:
+    with ZipFile(f'static\zips\{nebula}_{device_name}.zip', 'w') as myzip:
         myzip.write(f'certs\ca\{nebula}.crt', f'{nebula}.crt')
         myzip.write(f'certs\{device_name}.crt', f'{device_name}.crt')
         myzip.write(f'certs\{device_name}.key', f'{device_name}.key')
         myzip.write(f'configs\{nebula}_{device_name}.yml', f'{nebula}_{device_name}.yml')
     
+    data['zip_location'] = f'static\zips\{nebula}_{device_name}.zip'
     socketio.emit('return', data)
 
 if __name__ == '__main__':

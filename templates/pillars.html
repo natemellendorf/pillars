@@ -189,16 +189,16 @@ socket.on('return', function(data) {
     if (data['error']) {
         $('#alert_div').show();
         document.getElementById("alert_msg").innerHTML = data['error'];
-        
-        //alert(data['error']);
     }
-    // window.open("static/%s.zip", '_blank');
+    if (data['zip_location']) {
+      var zip = data['zip_location']
+      console.log('Offering ZIP:' + zip);
+      window.open(zip, '_blank');
+    }
 
 });
 // END
 
 </script>
-
-
 
 {% endblock %}
