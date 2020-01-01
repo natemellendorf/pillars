@@ -119,6 +119,24 @@
 
 <script type="text/javascript" charset="utf-8">
 
+const lhLocation = document.getElementById('lh_location');
+const lhPort = document.getElementById('lh_port');
+const lhIP = document.getElementById('lh_ip');
+const joinButton = document.getElementById('nebula_join_button');
+
+lhLocation.addEventListener('keyup', function (event) {
+
+  isValidLhLocation = lhLocation.checkValidity();
+
+  if ( isValidLhLocation ) {
+    lhPort.required = true;
+    lhIP.required = true;
+  } else {
+    lhPort.required = false;
+    lhIP.required = false;
+  }
+});
+
 $('#nebula_create_form').submit(function () {
  nebula_create();
  return false;

@@ -1,21 +1,11 @@
 from flask import Flask, render_template, redirect, url_for, request, jsonify
-import requests
-from jinja2 import Environment, FileSystemLoader, meta
 from flask_bootstrap import Bootstrap
-import yaml, json
-from datetime import datetime
 from flask_socketio import SocketIO
-import os
-import redis
-import time
-import logging
-import fnmatch
+from flask_apscheduler import APScheduler
+import yaml, json, os, time, logging, subprocess
+from datetime import datetime
 from logging.handlers import RotatingFileHandler
 from zipfile import ZipFile
-import subprocess
-from benedict import benedict
-from flask_apscheduler import APScheduler
-
 from pprint import pprint
 
 # Needed for SocketIO to actually work...
@@ -40,14 +30,6 @@ file_handler.setLevel(logging.INFO)
 app.logger.addHandler(file_handler)
 app.logger.setLevel(logging.INFO)
 app.logger.info('Startup...')
-
-
-REDIS_URI = os.environ.get('REDIS_URI')
-
-if not REDIS_URI:
-    REDIS_URI = '127.0.0.1'
-
-r = redis.Redis(host=REDIS_URI, port=6379, db=0)
 
 def current_time():
     current_time = str(datetime.now().time())
