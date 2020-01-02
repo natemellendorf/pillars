@@ -1,7 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request, jsonify
 from flask_bootstrap import Bootstrap
 from flask_socketio import SocketIO
-from flask_apscheduler import APScheduler
 import yaml, json, os, time, logging, subprocess
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
@@ -16,9 +15,6 @@ app = Flask(__name__)
 app.config['secret'] = 's;ldi3r#$R@lkjedf$'
 
 bootstrap = Bootstrap(app)
-scheduler = APScheduler()
-scheduler.init_app(app)
-scheduler.start()
 socketio = SocketIO(app)
 
 if not os.path.exists('logs'):
