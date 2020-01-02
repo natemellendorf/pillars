@@ -23,6 +23,9 @@ docker run --name pillars -d -p 80:80 natemellendorf/nebula-pillars
 - Add No/SQL backed
   - Too much is happening within the local dir
 - Fix socketio emits
+- Add download button vs. using popup
+- Allow for cert overwrite (if needed)
+- Look into small IPAM to report in pool size?
 - Create demo docs
 - Add in support for remaining Nebula features
   - Groups
