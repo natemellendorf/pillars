@@ -18,6 +18,9 @@ docker run --name pillars -d -p 80:80 natemellendorf/nebula-pillars
 - Add pipeline
   - linting
   - pytest
+- Clone / build from the Nebula project vs. using the binary. (lazy)
+- Use Alpine:Go vs. Ubuntu for container 
+- Clean up requirements.txt
 - Create API
 - Add OAuth
 - Add No/SQL backed
@@ -34,6 +37,11 @@ docker run --name pillars -d -p 80:80 natemellendorf/nebula-pillars
   - set local interface
   - ?
 
-### Author:
+### Credit
+
+Pillars is a personal project that's built around Nebula.  
+[Nebula Project](https://github.com/slackhq/nebula)
+
+### Author
 Nate Mellendorf <br>
 [https://www.linkedin.com/in/nathan-mellendorf/](https://www.linkedin.com/in/nathan-mellendorf/)<br>
