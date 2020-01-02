@@ -71,7 +71,7 @@ def nebula_refresh(data):
 @socketio.on('nebula_create')
 def socket_event(data):
     name = str(data["data"]["name"])
-    command = f'.\cert.exe ca -name "{name}" -out-crt "certs\ca\{name}.crt" -out-key "certs\ca\{name}.key"'
+    command = f'.\cert ca -name "{name}" -out-crt "certs\ca\{name}.crt" -out-key "certs\ca\{name}.key"'
     output = subprocess.run(command, capture_output=True)
 
     if output.returncode != 0:
@@ -107,7 +107,7 @@ def nebula_join(data):
     pprint(device_ip_no_cidr)
 
     # Create certificates for the endpoint
-    command = f'.\cert.exe sign -name "{device_name}" -ip "{device_ip}" -ca-crt "certs\ca\{nebula}.crt" -ca-key "certs\ca\{nebula}.key" -out-crt "certs\{device_name}.crt" -out-key "certs\{device_name}.key"'
+    command = f'.\cert sign -name "{device_name}" -ip "{device_ip}" -ca-crt "certs\ca\{nebula}.crt" -ca-key "certs\ca\{nebula}.key" -out-crt "certs\{device_name}.crt" -out-key "certs\{device_name}.key"'
     output = subprocess.run(command, capture_output=True)
 
     # If an error is returned, stop and return the error.
