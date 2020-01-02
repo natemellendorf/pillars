@@ -3,7 +3,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN mkdir /repos
 WORKDIR /repos
 RUN apt-get update && apt-get -y upgrade
-RUN apt-get -y install python3.7
+RUN apt-get -y install python3.7 python3-pip  git
 RUN git clone https://github.com/natemellendorf/pillars.git
 WORKDIR /repos/pillars
 RUN python3.7 -m pip install --upgrade pip
