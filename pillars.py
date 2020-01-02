@@ -14,7 +14,7 @@ eventlet.monkey_patch()
 
 app = Flask(__name__)
 app.config['secret'] = 's;ldi3r#$R@lkjedf$'
-app.config['slax_host'] = '10.0.0.204'
+
 bootstrap = Bootstrap(app)
 scheduler = APScheduler()
 scheduler.init_app(app)
@@ -37,9 +37,21 @@ def current_time():
     time = no_sec.pop(0)
     return time
 
+def get_nebulas():
+    nebulas = []
+    for root, dirs, files in os.walk(r'certs/ca'):
+        for file in files:
+            if file.endswith('.crt'):
+                split = file.split(".")
+                file = split.pop(0)
+                nebulas.append(f'{file}')
+    print(nebulas)
+    return nebulas
+
 @app.route('/pillars', methods=['GET', 'POST'])
 def pillars():
-    return render_template('pillars.html', title='Pillars', nebulas=['Omega'])
+    nebulas = get_nebulas()
+    return render_template('pillars.html', title='Pillars', nebulas=nebulas)
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
@@ -55,10 +67,13 @@ def connect():
 def disconnect():
     print('Client disconnected')
 
+@socketio.on('nebula_refresh')
+def nebula_refresh(data):
+    nebulas = get_nebulas()
+    socketio.emit('nebula_refresh', nebulas)
+
 @socketio.on('nebula_create')
 def socket_event(data):
-    # print(f'Flask received: {data}')
-    #stream = os.popen(f'./nebula/nebula-cert ca -name "{data["name"]}"')
     name = str(data["data"]["name"])
     command = f'.\cert.exe ca -name "{name}" -out-crt "certs\ca\{name}.crt" -out-key "certs\ca\{name}.key"'
     output = subprocess.run(command, capture_output=True)
@@ -68,18 +83,18 @@ def socket_event(data):
         socketio.emit('return', data)
         return
 
-    with open(f'certs\ca\{name}.crt') as crt_f:
-         data["crt"] = crt_f.read()
+    # Read the certificates created - WIP
+    #with open(f'certs\ca\{name}.crt') as crt_f:
+         #data["crt"] = crt_f.read()
 
-    with open(f'certs\ca\{name}.key') as key_f:
-         data["key"] = key_f.read()
+    #with open(f'certs\ca\{name}.key') as key_f:
+         #data["key"] = key_f.read()
     
     socketio.emit('return', data)
 
 @socketio.on('nebula_join')
 def nebula_join(data):
     print(f'Flask received: {data}')
-    #stream = os.popen(f'./nebula/nebula-cert ca -name "{data["name"]}"')
     nebula = str(data["data"]["nebula"])
     device_name = str(data["data"]["device_name"])
     device_ip = str(data["data"]["device_ip"])
@@ -106,20 +121,20 @@ def nebula_join(data):
         socketio.emit('return', data)
         return
 
-    # Read the certificates created
-    with open(f'certs\{device_name}.crt') as crt_f:
+    # Read the certificates created - WIP
+    #with open(f'certs\{device_name}.crt') as crt_f:
          #data["crt"] = crt_f.read()
-         pass
+         
 
-    with open(f'certs\{device_name}.key') as key_f:
+    #with open(f'certs\{device_name}.key') as key_f:
          #data["key"] = key_f.read()
-         pass
+         
 
     # Create config file for endpoint
     config = 'config.yml'
     
     with open(config, 'r') as outfile:
-        d = yaml.load(outfile)
+        d = yaml.load(outfile, Loader=yaml.SafeLoader)
     
     # Lighthouse logic
     if lh_ip == device_ip_no_cidr:
@@ -146,7 +161,7 @@ def nebula_join(data):
         d['static_host_map'][f'{lh_ip}'] = ''
         d['static_host_map'][f'{lh_ip}'] = newlist
     else:
-        d['static_host_map'] = 'None'
+        del d['static_host_map']
     
     # Save the new endpoint config file
     with open(f'configs\{nebula}_{device_name}.yml', 'w') as outfile:

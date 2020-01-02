@@ -30,6 +30,11 @@ input[type=text] {
     background-color: rgb(44, 44, 44);
     color: white;
 }
+input[type=text]:disabled {
+    background-color: rgb(44, 44, 44);
+    color: white;
+}
+
 input[type=checkbox] {
     background-color: rgb(44, 44, 44);
     color: rgb(44, 44, 44);
