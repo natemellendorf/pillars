@@ -1,5 +1,5 @@
 a {
-    color: #343a40;
+    color: #868e96;
 }
 a:visited {
     color: #868e96;
@@ -14,7 +14,7 @@ a:active {
     color: #868e96;
 }
 body { 
-    background-image: url('beach.jpg');
+    background-image: url('poc.jpg');
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-size: cover;
@@ -26,7 +26,7 @@ input[type=text] {
     background-color: rgb(44, 44, 44);
     color: white;
 }
-  input[type=text]:focus {
+input[type=text]:focus {
     background-color: rgb(44, 44, 44);
     color: white;
 }
@@ -39,7 +39,7 @@ input[type=checkbox] {
     background-color: rgb(44, 44, 44);
     color: rgb(44, 44, 44);
 }
-  input[type=checkbox]:focus {
+input[type=checkbox]:focus {
     background-color: rgb(44, 44, 44);
     color: rgb(44, 44, 44);
 }
@@ -47,7 +47,7 @@ input[type=checkbox] {
 .special-select {
     background: rgb(44, 44, 44);
     color: white;
-  }
+}
 .special-select:focus {
     background: rgb(44, 44, 44);
     color: white;
@@ -55,4 +55,8 @@ input[type=checkbox] {
 .special-select option {
     background-color: rgb(44, 44, 44);
     color: white;
-  }
+}
+
+code {
+    color: #868e96;
+}

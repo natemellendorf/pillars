@@ -171,6 +171,7 @@ def nebula_join(data):
         myzip.write(f'configs/{nebula}_{device_name}.yml', f'{nebula}_{device_name}.yml')
     
     data['zip_location'] = f'static/zips/{nebula}_{device_name}.zip'
+    data['configFile'] = f'./nebula -config {nebula}_{device_name}.yml'
     socketio.emit('return', data)
 
 if __name__ == '__main__':
