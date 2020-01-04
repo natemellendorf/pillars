@@ -39,9 +39,12 @@ docker run --name pillars -d -p 80:80 natemellendorf/nebula-pillars
 
 ### Credit
 
-Pillars is a personal project that's built around Nebula.  
-[Nebula Project](https://github.com/slackhq/nebula)
+Pillars is a personal project built to enhance Nebula.  
+Nebula is an open source project published by Slack.   
+Check out the [Nebula Project](https://github.com/slackhq/nebula) for more information.   
 
-### Author
+### Authors
 Nate Mellendorf <br>
 [https://www.linkedin.com/in/nathan-mellendorf/](https://www.linkedin.com/in/nathan-mellendorf/)<br>
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.me/natemellendorf/10)
