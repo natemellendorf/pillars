@@ -71,8 +71,8 @@ def nebula_refresh(data):
 @socketio.on('nebula_create')
 def socket_event(data):
     name = str(data["data"]["name"])
-    command = f'.\cert.exe ca -name "{name}" -out-crt "certs\ca\{name}.crt" -out-key "certs\ca\{name}.key"'
-    output = subprocess.run(command, capture_output=True)
+    command = f'./cert ca -name "{name}" -out-crt "certs/ca/{name}.crt" -out-key "certs/ca/{name}.key"'
+    output = subprocess.run(command, capture_output=True, shell=True)
 
     if output.returncode != 0:
         data['error'] = str(output.stderr)
@@ -107,8 +107,8 @@ def nebula_join(data):
     pprint(device_ip_no_cidr)
 
     # Create certificates for the endpoint
-    command = f'.\cert.exe sign -name "{device_name}" -ip "{device_ip}" -ca-crt "certs\ca\{nebula}.crt" -ca-key "certs\ca\{nebula}.key" -out-crt "certs\{device_name}.crt" -out-key "certs\{device_name}.key"'
-    output = subprocess.run(command, capture_output=True)
+    command = f'./cert sign -name "{device_name}" -ip "{device_ip}" -ca-crt "certs/ca/{nebula}.crt" -ca-key "certs/ca/{nebula}.key" -out-crt "certs/{device_name}.crt" -out-key "certs/{device_name}.key"'
+    output = subprocess.run(command, capture_output=True, shell=True)
 
     # If an error is returned, stop and return the error.
     if output.returncode != 0:
@@ -160,17 +160,18 @@ def nebula_join(data):
         del d['static_host_map']
     
     # Save the new endpoint config file
-    with open(f'configs\{nebula}_{device_name}.yml', 'w') as outfile:
+    with open(f'configs/{nebula}_{device_name}.yml', 'w') as outfile:
         yaml.dump(d, outfile, default_style='' , default_flow_style=False)
     
 
-    with ZipFile(f'static\zips\{nebula}_{device_name}.zip', 'w') as myzip:
-        myzip.write(f'certs\ca\{nebula}.crt', f'{nebula}.crt')
-        myzip.write(f'certs\{device_name}.crt', f'{device_name}.crt')
-        myzip.write(f'certs\{device_name}.key', f'{device_name}.key')
-        myzip.write(f'configs\{nebula}_{device_name}.yml', f'{nebula}_{device_name}.yml')
+    with ZipFile(f'static/zips/{nebula}_{device_name}.zip', 'w') as myzip:
+        myzip.write(f'certs/ca/{nebula}.crt', f'{nebula}.crt')
+        myzip.write(f'certs/{device_name}.crt', f'{device_name}.crt')
+        myzip.write(f'certs/{device_name}.key', f'{device_name}.key')
+        myzip.write(f'configs/{nebula}_{device_name}.yml', f'{nebula}_{device_name}.yml')
     
-    data['zip_location'] = f'static\zips\{nebula}_{device_name}.zip'
+    data['zip_location'] = f'static/zips/{nebula}_{device_name}.zip'
+    data['configFile'] = f'./nebula -config {nebula}_{device_name}.yml'
     socketio.emit('return', data)
 
 if __name__ == '__main__':
