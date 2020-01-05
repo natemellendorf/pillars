@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, jsonify
+from flask import Flask, render_template, redirect, url_for, request, jsonify, g, session
 from flask_bootstrap import Bootstrap
 from flask_socketio import SocketIO
 import yaml, json, os, time, logging, subprocess
@@ -6,17 +6,43 @@ from datetime import datetime
 from logging.handlers import RotatingFileHandler
 from zipfile import ZipFile
 from pprint import pprint
+import secrets
 
-# Needed for SocketIO to actually work...
+from flask_github import GitHub
+from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+
+import requests
+import sqlite3
+from flask_login import (
+    LoginManager,
+    current_user,
+    login_required,
+    login_user,
+    logout_user,
+)
+
+# Needed for SocketIO to work
 import eventlet
 eventlet.monkey_patch()
 
-app = Flask(__name__)
-app.config['secret'] = 's;ldi3r#$R@lkjedf$'
+# Gather secrets
+import app_secrets
+github_secret = secrets.token_urlsafe(40)
+flask_secret = secrets.token_urlsafe(40)
 
+# Build the app
+app = Flask(__name__)
+app.config['secret'] = flask_secret
+app.config['GITHUB_CLIENT_ID'] = app_secrets.GITHUB_CLIENT_ID
+app.config['GITHUB_CLIENT_SECRET'] = app_secrets.GITHUB_CLIENT_SECRET
+app.config['SECRET_KEY'] = github_secret
 bootstrap = Bootstrap(app)
+github = GitHub(app)
 socketio = SocketIO(app)
 
+# Configure logging
 if not os.path.exists('logs'):
     os.mkdir('logs')
 file_handler = RotatingFileHandler('logs/event.log', maxBytes=10240, backupCount=10)
@@ -27,6 +53,31 @@ app.logger.addHandler(file_handler)
 app.logger.setLevel(logging.INFO)
 app.logger.info('Startup...')
 
+# setup sqlalchemy
+engine = create_engine('sqlite:////tmp/github-flask.db')
+db_session = scoped_session(sessionmaker(autocommit=False,
+                                         autoflush=False,
+                                         bind=engine))
+Base = declarative_base()
+Base.query = db_session.query_property()
+
+def init_db():
+    print('creating DB...')
+    Base.metadata.create_all(bind=engine)
+
+class User(Base):
+    __tablename__ = 'users'
+
+    id = Column(Integer, primary_key=True)
+    github_access_token = Column(String(255))
+    github_id = Column(Integer)
+    github_login = Column(String(255))
+
+    def __init__(self, github_access_token):
+        self.github_access_token = github_access_token
+
+
+# Custom functions for the app
 def current_time():
     current_time = str(datetime.now().time())
     no_sec = current_time.split('.')
@@ -44,6 +95,74 @@ def get_nebulas():
     print(nebulas)
     return nebulas
 
+
+# Decorators
+@app.before_request
+def before_request():
+    g.user = None
+    print(session)
+    if 'user_id' in session:
+        g.user = User.query.get(session['user_id'])
+
+@app.after_request
+def after_request(response):
+    db_session.remove()
+    return response
+
+@github.access_token_getter
+def token_getter():
+    user = g.user
+    if user is not None:
+        return user.github_access_token
+
+
+# App routes
+@app.route('/github-callback')
+@github.authorized_handler
+def authorized(access_token):
+    next_url = request.args.get('next') or url_for('index')
+    if access_token is None:
+        return redirect(next_url)
+
+    user = User.query.filter_by(github_access_token=access_token).first()
+    if user is None:
+        user = User(access_token)
+        db_session.add(user)
+
+    user.github_access_token = access_token
+
+    # Not necessary to get these details here
+    # but it helps humans to identify users easily.
+    g.user = user
+    github_user = github.get('/user')
+    user.github_id = github_user['id']
+    user.github_login = github_user['login']
+
+    db_session.commit()
+
+    session['user_id'] = user.id
+    return redirect(next_url)
+
+@app.route('/login')
+def login():
+    if session.get('user_id', None) is None:
+        return github.authorize()
+    else:
+        return redirect(url_for('index'))
+
+@app.route('/logout')
+def logout():
+    session.pop('user_id', None)
+    return redirect(url_for('index'))
+
+@app.route('/user')
+def user():
+    return jsonify(github.get('/user'))
+
+@app.route('/repo')
+def repo():
+    return jsonify(github.get('/repos/cenkalti/github-flask'))
+
 @app.route('/pillars', methods=['GET', 'POST'])
 def pillars():
     nebulas = get_nebulas()
@@ -55,6 +174,9 @@ def pillars():
 def index():
     return redirect(url_for('pillars'))
 
+
+
+# SocketIO
 @socketio.on('connect')
 def connect():
     print('Client connected!')
@@ -174,5 +296,8 @@ def nebula_join(data):
     data['configFile'] = f'./nebula -config {nebula}_{device_name}.yml'
     socketio.emit('return', data)
 
+
+# Start the app
 if __name__ == '__main__':
+    init_db()
     socketio.run(app, host="0.0.0.0", port=80, debug=True)
