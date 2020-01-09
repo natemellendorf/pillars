@@ -100,7 +100,6 @@ def get_nebulas():
 @app.before_request
 def before_request():
     g.user = None
-    print(session)
     if 'user_id' in session:
         g.user = User.query.get(session['user_id'])
 
@@ -120,6 +119,7 @@ def token_getter():
 @app.route('/github-callback')
 @github.authorized_handler
 def authorized(access_token):
+    print(request)
     next_url = request.args.get('next') or url_for('index')
     if access_token is None:
         return redirect(next_url)
@@ -148,6 +148,7 @@ def login():
     if session.get('user_id', None) is None:
         return github.authorize()
     else:
+        print(session['user_id'])
         return redirect(url_for('index'))
 
 @app.route('/logout')
@@ -155,7 +156,21 @@ def logout():
     session.pop('user_id', None)
     return redirect(url_for('index'))
 
+
+def authRequired(func):
+    def wrapper(*args, **kwargs):
+        print(session)
+        if g.user:
+            print(g.user.github_login)
+            return func(*args, **kwargs)
+        else:
+            print('PLEASE AUTH')
+            return github.authorize()
+    return wrapper
+
+
 @app.route('/user')
+@authRequired
 def user():
     return jsonify(github.get('/user'))
 
