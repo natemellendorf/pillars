@@ -1,7 +1,13 @@
+import app_secrets
 from flask import Flask, render_template, redirect, url_for, request, jsonify, g, session
 from flask_bootstrap import Bootstrap
 from flask_socketio import SocketIO
-import yaml, json, os, time, logging, subprocess
+import yaml
+import json
+import os
+import time
+import logging
+import subprocess
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
 from zipfile import ZipFile
@@ -28,7 +34,6 @@ import eventlet
 eventlet.monkey_patch()
 
 # Gather secrets
-import app_secrets
 github_secret = secrets.token_urlsafe(40)
 flask_secret = secrets.token_urlsafe(40)
 
@@ -45,7 +50,10 @@ socketio = SocketIO(app)
 # Configure logging
 if not os.path.exists('logs'):
     os.mkdir('logs')
-file_handler = RotatingFileHandler('logs/event.log', maxBytes=10240, backupCount=10)
+file_handler = RotatingFileHandler(
+    'logs/event.log',
+    maxBytes=10240,
+    backupCount=10)
 file_handler.setFormatter(logging.Formatter(
     '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
 file_handler.setLevel(logging.INFO)
@@ -61,9 +69,11 @@ db_session = scoped_session(sessionmaker(autocommit=False,
 Base = declarative_base()
 Base.query = db_session.query_property()
 
+
 def init_db():
     print('creating DB...')
     Base.metadata.create_all(bind=engine)
+
 
 class User(Base):
     __tablename__ = 'users'
@@ -84,6 +94,7 @@ def current_time():
     time = no_sec.pop(0)
     return time
 
+
 def get_nebulas():
     nebulas = []
     for root, dirs, files in os.walk(r'certs/ca'):
@@ -103,10 +114,12 @@ def before_request():
     if 'user_id' in session:
         g.user = User.query.get(session['user_id'])
 
+
 @app.after_request
 def after_request(response):
     db_session.remove()
     return response
+
 
 @github.access_token_getter
 def token_getter():
@@ -143,6 +156,7 @@ def authorized(access_token):
     session['user_id'] = user.id
     return redirect(next_url)
 
+
 @app.route('/login')
 def login():
     if session.get('user_id', None) is None:
@@ -150,6 +164,7 @@ def login():
     else:
         print(session['user_id'])
         return redirect(url_for('index'))
+
 
 @app.route('/logout')
 def logout():
@@ -174,36 +189,52 @@ def authRequired(func):
 def user():
     return jsonify(github.get('/user'))
 
+
 @app.route('/repo')
 def repo():
-    return jsonify(github.get('/repos/cenkalti/github-flask'))
+    return jsonify(github.get('/repos/natemellendorf/pillars'))
 
-@app.route('/pillars', methods=['GET', 'POST'])
-def pillars():
-    nebulas = get_nebulas()
-    return render_template('pillars.html', title='Pillars', nebulas=nebulas)
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 # @login_required
 def index():
-    return redirect(url_for('pillars'))
+    return redirect(url_for('join'))
 
 
+@app.route('/create', methods=['GET', 'POST'])
+def create():
+    nebulas = get_nebulas()
+    return render_template(
+        'pillars.html',
+        title='Pillars - Create',
+        nebulas=nebulas)
+
+
+@app.route('/join', methods=['GET', 'POST'])
+def join():
+    nebulas = get_nebulas()
+    return render_template(
+        'pillars.html',
+        title='Pillars - Join',
+        nebulas=nebulas)
 
 # SocketIO
 @socketio.on('connect')
 def connect():
     print('Client connected!')
 
+
 @socketio.on('disconnect')
 def disconnect():
     print('Client disconnected')
+
 
 @socketio.on('nebula_refresh')
 def nebula_refresh(data):
     nebulas = get_nebulas()
     socketio.emit('nebula_refresh', nebulas)
+
 
 @socketio.on('nebula_create')
 def socket_event(data):
@@ -217,13 +248,14 @@ def socket_event(data):
         return
 
     # Read the certificates created - WIP
-    #with open(f'certs\ca\{name}.crt') as crt_f:
-         #data["crt"] = crt_f.read()
+    # with open(f'certs\ca\{name}.crt') as crt_f:
+        #data["crt"] = crt_f.read()
 
-    #with open(f'certs\ca\{name}.key') as key_f:
-         #data["key"] = key_f.read()
-    
+    # with open(f'certs\ca\{name}.key') as key_f:
+        #data["key"] = key_f.read()
+
     socketio.emit('return', data)
+
 
 @socketio.on('nebula_join')
 def nebula_join(data):
@@ -255,20 +287,18 @@ def nebula_join(data):
         return
 
     # Read the certificates created - WIP
-    #with open(f'certs\{device_name}.crt') as crt_f:
-         #data["crt"] = crt_f.read()
-         
+    # with open(f'certs\{device_name}.crt') as crt_f:
+        #data["crt"] = crt_f.read()
 
-    #with open(f'certs\{device_name}.key') as key_f:
-         #data["key"] = key_f.read()
-         
+    # with open(f'certs\{device_name}.key') as key_f:
+        #data["key"] = key_f.read()
 
     # Create config file for endpoint
     config = 'config.yml'
-    
+
     with open(config, 'r') as outfile:
         d = yaml.load(outfile, Loader=yaml.SafeLoader)
-    
+
     # Lighthouse logic
     if lh_ip == device_ip_no_cidr:
         d['lighthouse']['am_lighthouse'] = True
@@ -295,18 +325,19 @@ def nebula_join(data):
         d['static_host_map'][f'{lh_ip}'] = newlist
     else:
         del d['static_host_map']
-    
+
     # Save the new endpoint config file
     with open(f'configs/{nebula}_{device_name}.yml', 'w') as outfile:
-        yaml.dump(d, outfile, default_style='' , default_flow_style=False)
-    
+        yaml.dump(d, outfile, default_style='', default_flow_style=False)
 
     with ZipFile(f'static/zips/{nebula}_{device_name}.zip', 'w') as myzip:
         myzip.write(f'certs/ca/{nebula}.crt', f'{nebula}.crt')
         myzip.write(f'certs/{device_name}.crt', f'{device_name}.crt')
         myzip.write(f'certs/{device_name}.key', f'{device_name}.key')
-        myzip.write(f'configs/{nebula}_{device_name}.yml', f'{nebula}_{device_name}.yml')
-    
+        myzip.write(
+            f'configs/{nebula}_{device_name}.yml',
+            f'{nebula}_{device_name}.yml')
+
     data['zip_location'] = f'static/zips/{nebula}_{device_name}.zip'
     data['configFile'] = f'./nebula -config {nebula}_{device_name}.yml'
     socketio.emit('return', data)
