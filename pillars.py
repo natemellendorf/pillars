@@ -37,11 +37,18 @@ eventlet.monkey_patch()
 github_secret = secrets.token_urlsafe(40)
 flask_secret = secrets.token_urlsafe(40)
 
+github_oauth = False
+github_client_id = os.environ.get('GITHUB_CLIENT_ID')
+github_client_secret = os.environ.get('GITHUB_CLIENT_SECRET')
+
+if github_client_id and github_client_secret:
+    github_oauth = True
+
 # Build the app
 app = Flask(__name__)
 app.config['secret'] = flask_secret
-app.config['GITHUB_CLIENT_ID'] = app_secrets.GITHUB_CLIENT_ID
-app.config['GITHUB_CLIENT_SECRET'] = app_secrets.GITHUB_CLIENT_SECRET
+app.config['GITHUB_CLIENT_ID'] = github_client_id
+app.config['GITHUB_CLIENT_SECRET'] = github_client_secret
 app.config['SECRET_KEY'] = github_secret
 bootstrap = Bootstrap(app)
 github = GitHub(app)
@@ -169,10 +176,10 @@ def authorized(access_token):
 
 @app.route('/login')
 def login():
-    if session.get('user_id', None) is None:
+    if github_oauth and session.get('user_id', None) is None:
         return github.authorize()
     else:
-        print(session['user_id'])
+        #print(session['user_id'])
         return redirect(url_for('index'))
 
 
@@ -184,8 +191,11 @@ def logout():
 
 def GitHubAuthRequired(func):
     def authwrapper(*args, **kwargs):
-        print(session)
-        if g.user:
+        #print(session)
+        if github_oauth is False:
+            print('Missing GitHub OAuth ID/Secrets!')
+            return redirect(url_for('index'))
+        elif g.user:
             print(g.user.github_login)
             return func(*args, **kwargs)
         else:
@@ -226,7 +236,9 @@ def create():
     return render_template(
         'create.html',
         title='Pillars - Create',
-        nebulas=nebulas)
+        nebulas=nebulas,
+        github_oauth=github_oauth
+        )
 
 @app.route('/join', methods=['GET', 'POST'])
 def join():
@@ -234,7 +246,9 @@ def join():
     return render_template(
         'join.html',
         title='Pillars - Join',
-        nebulas=nebulas)
+        nebulas=nebulas,
+        github_oauth=github_oauth
+        )
 
 # SocketIO
 @socketio.on('connect')

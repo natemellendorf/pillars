@@ -26,8 +26,10 @@
         <ul class="navbar-nav ml-auto">
             {% if g.user.github_login %}
             <a href="{{ url_for('logout') }}"><button type="button" id="nebula_create_button" class="btn btn-secondary float-right">Logout</button></a>
-            {% else %}
+            {% elif github_oauth %}
             <a href="{{ url_for('login') }}"><button type="button" id="nebula_create_button" class="btn btn-secondary float-right">Login</button></a>
+            {% else %}
+            <button type="button" id="nebula_create_button" class="btn btn-secondary float-right" disabled>Login</button>
             {% endif %}
             <li class="nav-item">
             </li>
