@@ -106,6 +106,16 @@ def get_nebulas():
     print(nebulas)
     return nebulas
 
+def get_nebula_endpoints():
+    nebulas = []
+    for root, dirs, files in os.walk(r'certs/ca'):
+        for file in files:
+            if file.endswith('.crt'):
+                split = file.split(".")
+                file = split.pop(0)
+                nebulas.append(f'{file}')
+    print(nebulas)
+    return nebulas
 
 # Decorators
 @app.before_request
@@ -172,8 +182,8 @@ def logout():
     return redirect(url_for('index'))
 
 
-def authRequired(func):
-    def wrapper(*args, **kwargs):
+def GitHubAuthRequired(func):
+    def authwrapper(*args, **kwargs):
         print(session)
         if g.user:
             print(g.user.github_login)
@@ -181,17 +191,25 @@ def authRequired(func):
         else:
             print('PLEASE AUTH')
             return github.authorize()
-    return wrapper
+    authwrapper.__name__ = func.__name__
+    return authwrapper
 
 
 @app.route('/user')
-@authRequired
+@GitHubAuthRequired
 def user():
+    '''
+    Auth Example
+    '''
     return jsonify(github.get('/user'))
 
 
 @app.route('/repo')
+@GitHubAuthRequired
 def repo():
+    '''
+    Auth Example
+    '''
     return jsonify(github.get('/repos/natemellendorf/pillars'))
 
 
@@ -199,23 +217,22 @@ def repo():
 @app.route('/index', methods=['GET', 'POST'])
 # @login_required
 def index():
-    return redirect(url_for('join'))
+    return redirect(url_for('create'))
 
 
 @app.route('/create', methods=['GET', 'POST'])
 def create():
     nebulas = get_nebulas()
     return render_template(
-        'pillars.html',
+        'create.html',
         title='Pillars - Create',
         nebulas=nebulas)
-
 
 @app.route('/join', methods=['GET', 'POST'])
 def join():
     nebulas = get_nebulas()
     return render_template(
-        'pillars.html',
+        'join.html',
         title='Pillars - Join',
         nebulas=nebulas)
 
