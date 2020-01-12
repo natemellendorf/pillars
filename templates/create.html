@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+{% block app_content %}
+
+<div>
+    <div class="card rounded-0 card text-white bg-dark special-card">
+        <div class="card-header">
+            Create Nebula
+        </div>
+        <div class="card-body">
+
+        <form name="nebula_create_form" id="nebula_create_form">
+            <div class="form-group row">
+              <label for="nebula_name" class="col-sm-2 col-form-label">Name</label>
+              <div class="col-sm-10">
+                <input title="Name for your Nebula network" type="text" pattern="[a-zA-Z0-9]{1,}" name="nebula_name" id="nebula_name" class="form-control" placeholder="Nebula" required>
+                <small class="form-text text-muted">
+                    Should only contain letters and numbers
+                  </small>
+              </div>
+            </div>
+
+            <p>
+              <button type="submit" id="nebula_create_button" class="btn btn-secondary float-right">Create</button>    
+            </p>
+
+        </form>
+
+    </div>
+</div>
+
+<br>
+
+<div id="alert_div" class="alert alert-light alert-dismissible fade show" role="alert" style="display:none">
+  <text id="alert_msg"></text>
+  <button type="button" class="close" onclick="hide()" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+<div>
+    <div class="card rounded-0 card text-white bg-dark special-card">
+        <div class="card-header">
+            Create Device
+        </div>
+        <div class="card-body">
+
+        <form name="nebula_join_form" id="nebula_join_form">
+            <div class="form-group">
+                <select class="form-control special-select" id="nebula_list" required>
+                  {% for nebula in nebulas %}
+                  <option>{{nebula}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="form-group row">
+                <label for="device_name" class="col-sm-2 col-form-label">Device</label>
+                <div class="col-sm-10">
+                  <input title="Name of the device you plan to connect to your Nebula" type="text" pattern="[a-zA-Z0-9]{1,}" name="device_name" id="device_name" class="form-control" placeholder="Macbook" required>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="device_ip" class="col-sm-2 col-form-label">IP</label>
+                <div class="col-sm-10">
+                  <input title="The IP address for this device when on the Nebula network" type="text" pattern="^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(3[0-2]|[1-2][0-9]|[0-9]))$" name="device_ip" id="device_ip" class="form-control" placeholder="192.168.100.10/24" required>
+                </div>
+              </div>
+
+              <p>
+                <button class="btn btn-outline-light" type="button" data-toggle="collapse" data-target="#join_settings" aria-expanded="false" aria-controls="join_settings">
+                  Options
+                </button>
+                <button type="submit" id="nebula_join_button" class="btn btn-secondary float-right">Join</button>
+              </p>
+
+              <div class="collapse" id="join_settings">
+                <div class="card card-body rounded-0 card text-white bg-dark special-card">
+
+                  <h5>Lighthouse</h5>
+                  <div class="form-group row ">
+                    <label for="lh_location" class="col-sm-2 col-form-label">Location</label>
+                    <div class="col-sm-10">
+                      <input title="FQDN or public IP of your Nebula lighthouse" type="text" pattern="[a-zA-Z0-9.]{1,}" name="lh_location" id="lh_location" class="form-control" placeholder="lighthouse.example.com">
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="lh_port" class="col-sm-2 col-form-label">Port</label>
+                    <div class="col-sm-10">
+                      <input title="UDP port that your lighthouse listens on" type="text" pattern="[0-9]{1,}" name="lh_port" id="lh_port" class="form-control" placeholder="4242">
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="lh_ip" class="col-sm-2 col-form-label">IP</label>
+                    <div class="col-sm-10">
+                      <input title="The IP address of your lighthouse on the Nebula network" type="text" pattern="^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$" name="lh_ip" id="lh_ip" class="form-control" placeholder="192.168.100.1">
+                    </div>
+                  </div>
+
+                  <hr>
+
+                  <h5>Security</h5>
+                  <div class="form-group row">
+                    <label for="device_group" class="col-sm-2 col-form-label">Groups</label>
+                    <div class="col-sm-10">
+                      <input title="To be implemented..." type="text" pattern="[a-zA-Z0-9, ]{1,}" name="device_group" id="device_group" class="form-control" placeholder="Roadmap" disabled>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+          
+          </form>
+    </div>
+</div>
+
+<div class="modal fade" id="downloadModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg text-white bg-dark">
+    <div class="modal-content text-white bg-dark">
+      <div class="modal-header text-white bg-dark">
+        <h5 class="modal-title" id="downloadTitle">Download</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body text-white bg-dark">
+        <h5 class="mb-3">Instructions</h5>
+        <ol class="list">
+          <li><a id="download_link" href="#">Download</a> your device certificates and config file generated by Pillars.</li>
+          <li><a href="https://github.com/slackhq/nebula/releases" target="_blank">Download</a> Nebula</li>
+          <li>Extract both zip files to the same working directory.</li>
+          <li>Run the following command to start Nebula and join your device to your Nebula network:</li>
+          <code id="runcode"></code>
+        </ol>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="static/js/pillars.js" type="text/javascript" charset="utf-8">
+</script>
+
+{% endblock %}

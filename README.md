@@ -13,6 +13,18 @@ Today, Pillars gathers your input, creates certificates and config files, and ha
 docker run --name pillars -d -p 80:80 natemellendorf/nebula-pillars
 ```
 
+GitHub OAuth support has been added, but is not leveraged by Pillars yet.  
+To test, you can [create your own OAuth App](https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/) within GitHub and pass in your ID and Key: 
+
+
+```
+docker run --name pillars -d \
+-p 80:80 \
+-e GITHUB_CLIENT_ID='your_app_id' \
+-e GITHUB_CLIENT_SECRET='your_app_secret' \
+natemellendorf/nebula-pillars
+```
+
 ### ToDo
 
 - Add pipeline
@@ -22,7 +34,7 @@ docker run --name pillars -d -p 80:80 natemellendorf/nebula-pillars
 - Use Alpine:Go vs. Ubuntu for container 
 - Clean up requirements.txt
 - Create API
-- Add OAuth
+- ~Add GitHub OAuth~
 - Add No/SQL backed
   - Too much is happening within the local dir
 - Fix socketio emits
@@ -36,6 +48,11 @@ docker run --name pillars -d -p 80:80 natemellendorf/nebula-pillars
   - set local listening port
   - set local interface
   - ?
+
+### Demo
+
+Create new nebula (CA) with device config file and certs
+![Create new nebula and device](demo/demo_create.gif)
 
 ### Credit
 

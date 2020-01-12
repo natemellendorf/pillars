@@ -1,4 +1,6 @@
-﻿acme==0.29.1
+﻿Flask-SQLAlchemy
+GitHub-Flask
+acme==0.29.1
 alembic==1.0.0
 APScheduler==3.6.0
 asn1crypto==0.24.0
