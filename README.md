@@ -15,6 +15,7 @@ docker run --name pillars -d -p 80:80 natemellendorf/nebula-pillars
 
 GitHub OAuth support has been added, but is not leveraged by Pillars yet.  
 To test, you can [create your own OAuth App](https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/) within GitHub and pass in your ID and Key: 
+
 ```
 docker run --name pillars -d \
 -p 80:80 \
