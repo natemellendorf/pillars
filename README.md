@@ -47,6 +47,11 @@ natemellendorf/nebula-pillars
   - set local interface
   - ?
 
+### Demo
+
+Create new nebula (CA) with device config file and certs
+![Create new nebula and device](demo/demo_create.gif)
+
 ### Credit
 
 Pillars is a personal project built to enhance Nebula.  
