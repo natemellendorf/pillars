@@ -34,7 +34,7 @@ itsdangerous==0.24
 Jinja2==2.10
 josepy==1.1.0
 junos-eznc==2.2.0
-lxml==4.3.3
+lxml==4.6.2
 mailchecker==3.3.3
 Mako==1.0.7
 MarkupSafe==1.0
