@@ -36,7 +36,7 @@ josepy==1.1.0
 junos-eznc==2.2.0
 lxml==4.3.3
 mailchecker==3.3.3
-Mako==1.0.7
+Mako==1.2.2
 MarkupSafe==1.0
 mock==2.0.0
 monotonic==1.5
