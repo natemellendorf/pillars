@@ -25,7 +25,7 @@ flask-nav==0.6
 Flask-SocketIO==3.3.2
 Flask-WTF==0.14.2
 ftfy==5.6
-gevent==1.4.0
+gevent==25.4.1
 gevent-websocket==0.10.1
 greenlet==0.4.15
 html5lib==1.0.1
@@ -75,3 +75,4 @@ WTForms==2.2.1
 xmltodict==0.12.0
 Flask-SQLAlchemy
 GitHub-Flask
+setuptools>=78.1.1 # not directly required, pinned by Snyk to avoid a vulnerability
